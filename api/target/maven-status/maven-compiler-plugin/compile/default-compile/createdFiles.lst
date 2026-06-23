@@ -1,0 +1,6 @@
+org/openmrs/module/notifications/Item.class
+org/openmrs/module/notifications/NotificationsConfig.class
+org/openmrs/module/notifications/NotificationsActivator.class
+org/openmrs/module/notifications/api/impl/NotificationsServiceImpl.class
+org/openmrs/module/notifications/api/dao/NotificationsDao.class
+org/openmrs/module/notifications/api/NotificationsService.class
