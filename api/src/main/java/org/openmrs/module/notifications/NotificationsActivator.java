@@ -11,27 +11,66 @@ package org.openmrs.module.notifications;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Obs;
+import org.openmrs.api.context.Context;
+import org.openmrs.event.Event;
 import org.openmrs.module.BaseModuleActivator;
+import org.openmrs.module.DaemonToken;
+import org.openmrs.module.DaemonTokenAware;
+import org.openmrs.module.notifications.api.listener.LabResultEventListener;
 
 /**
- * This class contains the logic that is run every time this module is either started or shutdown
+ * This class contains the logic that is run every time this module is either started or shutdown.
+ * It receives a {@link DaemonToken} so that the lab result event listener can run privileged
+ * handling in a daemon thread, and it subscribes/unsubscribes that listener to Obs events.
  */
-public class NotificationsActivator extends BaseModuleActivator {
-	
+public class NotificationsActivator extends BaseModuleActivator implements DaemonTokenAware {
+
 	private Log log = LogFactory.getLog(this.getClass());
-	
+
+	private DaemonToken daemonToken;
+
+	@Override
+	public void setDaemonToken(DaemonToken daemonToken) {
+		this.daemonToken = daemonToken;
+	}
+
 	/**
 	 * @see #started()
 	 */
+	@Override
 	public void started() {
+		LabResultEventListener listener = getListener();
+		if (listener != null) {
+			listener.setDaemonToken(daemonToken);
+			Event.subscribe(Obs.class, Event.Action.CREATED.name(), listener);
+			Event.subscribe(Obs.class, Event.Action.UPDATED.name(), listener);
+			log.info("Subscribed LabResultEventListener to Obs CREATED/UPDATED events");
+		}
 		log.info("Started Notifications");
 	}
-	
+
 	/**
 	 * @see #shutdown()
 	 */
+	@Override
 	public void shutdown() {
+		LabResultEventListener listener = getListener();
+		if (listener != null) {
+			Event.unsubscribe(Obs.class, Event.Action.CREATED, listener);
+			Event.unsubscribe(Obs.class, Event.Action.UPDATED, listener);
+		}
 		log.info("Shutdown Notifications");
 	}
-	
+
+	private LabResultEventListener getListener() {
+		try {
+			return Context.getRegisteredComponent("notifications.LabResultEventListener",
+			        LabResultEventListener.class);
+		}
+		catch (Exception e) {
+			log.warn("LabResultEventListener component not available", e);
+			return null;
+		}
+	}
 }

@@ -9,29 +9,83 @@
  */
 package org.openmrs.module.notifications.api.dao;
 
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.openmrs.Patient;
+import org.openmrs.User;
 import org.openmrs.api.db.hibernate.DbSession;
 import org.openmrs.api.db.hibernate.DbSessionFactory;
 import org.openmrs.module.notifications.Item;
+import org.openmrs.module.notifications.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository("notifications.NotificationsDao")
 public class NotificationsDao {
-	
+
 	@Autowired
 	DbSessionFactory sessionFactory;
-	
+
 	private DbSession getSession() {
 		return sessionFactory.getCurrentSession();
 	}
-	
+
+	// ── Item methods ──────────────────────────────────────────────────────────
+
 	public Item getItemByUuid(String uuid) {
-		return (Item) getSession().createCriteria(Item.class).add(Restrictions.eq("uuid", uuid)).uniqueResult();
+		return (Item) getSession().createCriteria(Item.class)
+		        .add(Restrictions.eq("uuid", uuid))
+		        .uniqueResult();
 	}
-	
+
 	public Item saveItem(Item item) {
 		getSession().saveOrUpdate(item);
 		return item;
+	}
+
+	// ── Notification methods ──────────────────────────────────────────────────
+
+	public Notification saveNotification(Notification notification) {
+		getSession().saveOrUpdate(notification);
+		return notification;
+	}
+
+	public Notification getNotificationByUuid(String uuid) {
+		return (Notification) getSession().createCriteria(Notification.class)
+		        .add(Restrictions.eq("uuid", uuid))
+		        .add(Restrictions.eq("voided", false))
+		        .uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Notification> getNotificationsByRecipient(User recipient, Notification.Status status) {
+		Criteria criteria = getSession().createCriteria(Notification.class)
+		        .add(Restrictions.eq("recipient", recipient))
+		        .add(Restrictions.eq("voided", false));
+		if (status != null) {
+			criteria.add(Restrictions.eq("status", status));
+		}
+		return criteria.addOrder(Order.desc("dateCreated")).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Notification> getNotificationsByPatient(Patient patient) {
+		return getSession().createCriteria(Notification.class)
+		        .add(Restrictions.eq("patient", patient))
+		        .add(Restrictions.eq("voided", false))
+		        .addOrder(Order.desc("dateCreated"))
+		        .list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Notification> getNotificationsByStatus(Notification.Status status) {
+		return getSession().createCriteria(Notification.class)
+		        .add(Restrictions.eq("status", status))
+		        .add(Restrictions.eq("voided", false))
+		        .addOrder(Order.desc("dateCreated"))
+		        .list();
 	}
 }

@@ -11,11 +11,16 @@ package org.openmrs.module.notifications.api.dao;
 
 import org.junit.Test;
 import org.junit.Ignore;
+import org.openmrs.User;
 import org.openmrs.api.UserService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.notifications.Item;
+import org.openmrs.module.notifications.Notification;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -54,5 +59,35 @@ public class NotificationsDaoTest extends BaseModuleContextSensitiveTest {
 		assertThat(savedItem, hasProperty("uuid", is(item.getUuid())));
 		assertThat(savedItem, hasProperty("owner", is(item.getOwner())));
 		assertThat(savedItem, hasProperty("description", is(item.getDescription())));
+	}
+
+	@Test
+	public void saveNotification_shouldPersistAndQueryByStatus() {
+		//Given
+		User recipient = userService.getUser(1);
+		Notification notification = new Notification();
+		notification.setRecipient(recipient);
+		notification.setType(Notification.Type.LAB_RESULT);
+		notification.setPriority(Notification.Priority.HIGH);
+		notification.setMessage("Critical potassium value detected");
+		notification.setStatus(Notification.Status.UNREAD);
+
+		//When
+		dao.saveNotification(notification);
+		Context.flushSession();
+		Context.clearSession();
+
+		//Then
+		Notification saved = dao.getNotificationByUuid(notification.getUuid());
+		assertNotNull(saved);
+		assertThat(saved, hasProperty("message", is("Critical potassium value detected")));
+		assertThat(saved, hasProperty("priority", is(Notification.Priority.HIGH)));
+		assertThat(saved, hasProperty("status", is(Notification.Status.UNREAD)));
+
+		List<Notification> unread = dao.getNotificationsByStatus(Notification.Status.UNREAD);
+		assertThat(unread, hasItem(hasProperty("uuid", is(notification.getUuid()))));
+
+		List<Notification> forRecipient = dao.getNotificationsByRecipient(recipient, Notification.Status.UNREAD);
+		assertThat(forRecipient, hasItem(hasProperty("uuid", is(notification.getUuid()))));
 	}
 }

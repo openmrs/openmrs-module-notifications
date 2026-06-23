@@ -1,6 +1,6 @@
-/home/tendo/openmrs/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/Item.java
-/home/tendo/openmrs/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/NotificationsActivator.java
-/home/tendo/openmrs/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/NotificationsConfig.java
-/home/tendo/openmrs/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/api/dao/NotificationsDao.java
-/home/tendo/openmrs/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/api/impl/NotificationsServiceImpl.java
-/home/tendo/openmrs/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/api/NotificationsService.java
+/home/tendo/OPENMRS/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/NotificationsConfig.java
+/home/tendo/OPENMRS/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/NotificationsActivator.java
+/home/tendo/OPENMRS/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/api/impl/NotificationsServiceImpl.java
+/home/tendo/OPENMRS/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/api/NotificationsService.java
+/home/tendo/OPENMRS/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/api/dao/NotificationsDao.java
+/home/tendo/OPENMRS/openmrs-module-notifications/api/src/main/java/org/openmrs/module/notifications/Item.java
