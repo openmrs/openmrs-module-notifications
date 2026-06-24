@@ -38,38 +38,39 @@ import java.util.Set;
  * created or updated, the listener reconstructs a {@link LabResultContext}, asks the
  * {@link NotificationRuleEngine} whether to notify, and, if so, persists and delivers a
  * notification to the resolved recipients.
- *
- * <p>The handling runs inside a {@link Daemon} thread because event callbacks execute outside of
- * an authenticated OpenMRS context and Hibernate session.</p>
+ * <p>
+ * The handling runs inside a {@link Daemon} thread because event callbacks execute outside of an
+ * authenticated OpenMRS context and Hibernate session.
+ * </p>
  */
 @Component("notifications.LabResultEventListener")
 public class LabResultEventListener implements EventListener {
-
+	
 	private final Log log = LogFactory.getLog(this.getClass());
-
+	
 	private final NotificationRuleEngine ruleEngine;
-
+	
 	private final RecipientResolver recipientResolver;
-
+	
 	private DaemonToken daemonToken;
-
+	
 	@Autowired
 	public LabResultEventListener(NotificationRuleEngine ruleEngine, RecipientResolver recipientResolver) {
 		this.ruleEngine = ruleEngine;
 		this.recipientResolver = recipientResolver;
 	}
-
+	
 	public void setDaemonToken(DaemonToken daemonToken) {
 		this.daemonToken = daemonToken;
 	}
-
+	
 	@Override
 	public void onMessage(final Message message) {
 		try {
 			final String uuid = ((MapMessage) message).getString("uuid");
 			if (daemonToken != null) {
 				Daemon.runInDaemonThread(new Runnable() {
-
+					
 					@Override
 					public void run() {
 						handle(uuid);
@@ -83,11 +84,11 @@ public class LabResultEventListener implements EventListener {
 			log.error("Failed to process lab result event", e);
 		}
 	}
-
+	
 	/**
 	 * Processes a single Obs by uuid: classifies it, evaluates the rules, and creates a
 	 * notification when warranted. Package-visible for unit testing.
-	 *
+	 * 
 	 * @param obsUuid the uuid of the Obs carried by the event message
 	 */
 	void handle(String obsUuid) {
@@ -95,24 +96,22 @@ public class LabResultEventListener implements EventListener {
 		if (obs == null) {
 			return;
 		}
-
+		
 		LabResultContext context = buildContext(obs);
 		NotificationDecision decision = ruleEngine.evaluate(context);
 		if (!decision.shouldSend()) {
 			return;
 		}
-
-		Patient patient = obs.getPerson() != null && obs.getPerson().isPatient()
-		        ? (Patient) obs.getPerson() : null;
+		
+		Patient patient = obs.getPerson() != null && obs.getPerson().isPatient() ? (Patient) obs.getPerson() : null;
 		Order order = obs.getOrder();
-		Set<User> recipients = order != null
-		        ? recipientResolver.resolveForOrder(order)
-		        : recipientResolver.resolveForPatient(patient);
-
+		Set<User> recipients = order != null ? recipientResolver.resolveForOrder(order) : recipientResolver
+		        .resolveForPatient(patient);
+		
 		NotificationsService service = Context.getService(NotificationsService.class);
-		DeliveryService deliveryService = Context.getRegisteredComponent(
-		        "notifications.InAppDeliveryService", DeliveryService.class);
-
+		DeliveryService deliveryService = Context.getRegisteredComponent("notifications.InAppDeliveryService",
+		    DeliveryService.class);
+		
 		for (User recipient : recipients) {
 			Notification notification = new Notification(patient, recipient, Notification.Type.LAB_RESULT,
 			        decision.getPriority(), buildMessage(obs));
@@ -121,21 +120,17 @@ public class LabResultEventListener implements EventListener {
 			deliveryService.deliver(saved);
 		}
 	}
-
+	
 	private LabResultContext buildContext(Obs obs) {
 		LabResultContext.OrderPriority orderPriority = LabResultContext.OrderPriority.ROUTINE;
 		if (obs.getOrder() != null && obs.getOrder().getUrgency() == Order.Urgency.STAT) {
 			orderPriority = LabResultContext.OrderPriority.STAT;
 		}
 		// Classification of the actual value is delegated to concept ranges; default to NORMAL here.
-		return LabResultContext.builder()
-		        .orderPriority(orderPriority)
-		        .labValueClassification(classify(obs))
-		        .abnormalBeyondThreshold(false)
-		        .sampleRejected(false)
-		        .build();
+		return LabResultContext.builder().orderPriority(orderPriority).labValueClassification(classify(obs))
+		        .abnormalBeyondThreshold(false).sampleRejected(false).build();
 	}
-
+	
 	private LabResultContext.LabValueClassification classify(Obs obs) {
 		if (obs.getConcept() == null || obs.getValueNumeric() == null) {
 			return LabResultContext.LabValueClassification.NORMAL;
@@ -160,10 +155,10 @@ public class LabResultEventListener implements EventListener {
 		}
 		return LabResultContext.LabValueClassification.NORMAL;
 	}
-
+	
 	private String buildMessage(Obs obs) {
-		String conceptName = obs.getConcept() != null && obs.getConcept().getName() != null
-		        ? obs.getConcept().getName().getName() : "Lab";
+		String conceptName = obs.getConcept() != null && obs.getConcept().getName() != null ? obs.getConcept().getName()
+		        .getName() : "Lab";
 		return "New " + conceptName + " result is available.";
 	}
 }

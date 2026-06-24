@@ -22,96 +22,82 @@ import static org.junit.Assert.assertThat;
  * Unit tests for the {@link NotificationRuleEngine} decision tree described in O3-5751.
  */
 public class NotificationRuleEngineTest {
-
+	
 	private NotificationRuleEngine engine;
-
+	
 	@Before
 	public void setup() {
 		engine = new NotificationRuleEngine();
 	}
-
+	
 	@Test
 	public void evaluate_shouldSendHighWhenSampleRejected() {
-		LabResultContext context = LabResultContext.builder()
-		        .sampleRejected(true)
-		        .build();
-
+		LabResultContext context = LabResultContext.builder().sampleRejected(true).build();
+		
 		NotificationDecision decision = engine.evaluate(context);
-
+		
 		assertThat(decision.shouldSend(), is(true));
 		assertThat(decision.getPriority(), is(Notification.Priority.HIGH));
 	}
-
+	
 	@Test
 	public void evaluate_shouldSendHighForStatOrder() {
-		LabResultContext context = LabResultContext.builder()
-		        .orderPriority(OrderPriority.STAT)
-		        .labValueClassification(LabValueClassification.NORMAL)
-		        .build();
-
+		LabResultContext context = LabResultContext.builder().orderPriority(OrderPriority.STAT)
+		        .labValueClassification(LabValueClassification.NORMAL).build();
+		
 		NotificationDecision decision = engine.evaluate(context);
-
+		
 		assertThat(decision.shouldSend(), is(true));
 		assertThat(decision.getPriority(), is(Notification.Priority.HIGH));
 	}
-
+	
 	@Test
 	public void evaluate_shouldSendHighForCriticalValue() {
-		LabResultContext context = LabResultContext.builder()
-		        .orderPriority(OrderPriority.ROUTINE)
-		        .labValueClassification(LabValueClassification.CRITICAL)
-		        .build();
-
+		LabResultContext context = LabResultContext.builder().orderPriority(OrderPriority.ROUTINE)
+		        .labValueClassification(LabValueClassification.CRITICAL).build();
+		
 		NotificationDecision decision = engine.evaluate(context);
-
+		
 		assertThat(decision.shouldSend(), is(true));
 		assertThat(decision.getPriority(), is(Notification.Priority.HIGH));
 	}
-
+	
 	@Test
 	public void evaluate_shouldSendMediumForAbnormalBeyondThreshold() {
-		LabResultContext context = LabResultContext.builder()
-		        .orderPriority(OrderPriority.ROUTINE)
-		        .labValueClassification(LabValueClassification.ABNORMAL)
-		        .abnormalBeyondThreshold(true)
-		        .build();
-
+		LabResultContext context = LabResultContext.builder().orderPriority(OrderPriority.ROUTINE)
+		        .labValueClassification(LabValueClassification.ABNORMAL).abnormalBeyondThreshold(true).build();
+		
 		NotificationDecision decision = engine.evaluate(context);
-
+		
 		assertThat(decision.shouldSend(), is(true));
 		assertThat(decision.getPriority(), is(Notification.Priority.MEDIUM));
 	}
-
+	
 	@Test
 	public void evaluate_shouldSilentUpdateForAbnormalWithinThreshold() {
-		LabResultContext context = LabResultContext.builder()
-		        .orderPriority(OrderPriority.ROUTINE)
-		        .labValueClassification(LabValueClassification.ABNORMAL)
-		        .abnormalBeyondThreshold(false)
-		        .build();
-
+		LabResultContext context = LabResultContext.builder().orderPriority(OrderPriority.ROUTINE)
+		        .labValueClassification(LabValueClassification.ABNORMAL).abnormalBeyondThreshold(false).build();
+		
 		NotificationDecision decision = engine.evaluate(context);
-
+		
 		assertThat(decision.shouldSend(), is(false));
 		assertThat(decision.getAction(), is(NotificationDecision.Action.SILENT_UPDATE));
 	}
-
+	
 	@Test
 	public void evaluate_shouldSilentUpdateForRoutineNormalResult() {
-		LabResultContext context = LabResultContext.builder()
-		        .orderPriority(OrderPriority.ROUTINE)
-		        .labValueClassification(LabValueClassification.NORMAL)
-		        .build();
-
+		LabResultContext context = LabResultContext.builder().orderPriority(OrderPriority.ROUTINE)
+		        .labValueClassification(LabValueClassification.NORMAL).build();
+		
 		NotificationDecision decision = engine.evaluate(context);
-
+		
 		assertThat(decision.shouldSend(), is(false));
 	}
-
+	
 	@Test
 	public void evaluate_shouldSilentUpdateForNullContext() {
 		NotificationDecision decision = engine.evaluate(null);
-
+		
 		assertThat(decision.shouldSend(), is(false));
 	}
 }

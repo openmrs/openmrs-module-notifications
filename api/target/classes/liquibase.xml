@@ -13,27 +13,88 @@
         for a list of supported elements and attributes
     -->
  
- 	<!-- Uncomment the changeset below if you want to make the Item class persistable, see also Item and NotificationsDaoTest -->
- 	<!--
-	<changeSet id="notifications-2016-08-02-12-21" author="raff">
+	<changeSet id="notifications-2024-01-01-001" author="tendo">
 		<preConditions onFail="MARK_RAN">
-			<not><tableExists tableName="notifications_item"/></not>
+			<not><tableExists tableName="notifications_notification"/></not>
 		</preConditions>
-		<comment>
-			Creating the notifications_item table
-		</comment>
-		<createTable tableName="notifications_item">
-			<column name="notifications_item_id" type="int" autoIncrement="true">
+		<comment>Creating the notifications_notification table for smart notifications</comment>
+		<createTable tableName="notifications_notification">
+			<column name="notification_id" type="int" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false"/>
 			</column>
 			<column name="uuid" type="char(38)">
-				<constraints nullable="false" unique="true"></constraints>
+				<constraints nullable="false" unique="true"/>
 			</column>
-			<column name="owner" type="int" />
-			<column name="description" type="varchar(255)" />
+			<column name="patient_id" type="int"/>
+			<column name="recipient_user_id" type="int"/>
+			<column name="type" type="varchar(50)" defaultValue="GENERAL">
+				<constraints nullable="false"/>
+			</column>
+			<column name="priority" type="varchar(20)" defaultValue="LOW">
+				<constraints nullable="false"/>
+			</column>
+			<column name="message" type="varchar(2000)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="status" type="varchar(20)" defaultValue="UNREAD">
+				<constraints nullable="false"/>
+			</column>
+			<column name="read_at" type="datetime"/>
+			<column name="reviewed_by" type="int"/>
+			<column name="reviewed_at" type="datetime"/>
+			<column name="metadata" type="varchar(4000)"/>
+			<!-- BaseOpenmrsData audit columns -->
+			<column name="creator" type="int">
+				<constraints nullable="false"/>
+			</column>
+			<column name="date_created" type="datetime">
+				<constraints nullable="false"/>
+			</column>
+			<column name="changed_by" type="int"/>
+			<column name="date_changed" type="datetime"/>
+			<column name="voided" type="boolean" defaultValueBoolean="false">
+				<constraints nullable="false"/>
+			</column>
+			<column name="voided_by" type="int"/>
+			<column name="date_voided" type="datetime"/>
+			<column name="void_reason" type="varchar(255)"/>
 		</createTable>
-        <addForeignKeyConstraint constraintName="notifications_item_owner_fk" baseTableName="notifications_item" baseColumnNames="owner"  referencedTableName="users"
-                                 referencedColumnNames="user_id" />
-    </changeSet> -->
- 
+
+		<addForeignKeyConstraint constraintName="notifications_notification_patient_fk"
+		                         baseTableName="notifications_notification" baseColumnNames="patient_id"
+		                         referencedTableName="patient" referencedColumnNames="patient_id"/>
+
+		<addForeignKeyConstraint constraintName="notifications_notification_recipient_user_fk"
+		                         baseTableName="notifications_notification" baseColumnNames="recipient_user_id"
+		                         referencedTableName="users" referencedColumnNames="user_id"/>
+
+		<addForeignKeyConstraint constraintName="notifications_notification_reviewed_by_fk"
+		                         baseTableName="notifications_notification" baseColumnNames="reviewed_by"
+		                         referencedTableName="users" referencedColumnNames="user_id"/>
+
+		<addForeignKeyConstraint constraintName="notifications_notification_creator_fk"
+		                         baseTableName="notifications_notification" baseColumnNames="creator"
+		                         referencedTableName="users" referencedColumnNames="user_id"/>
+
+		<addForeignKeyConstraint constraintName="notifications_notification_changed_by_fk"
+		                         baseTableName="notifications_notification" baseColumnNames="changed_by"
+		                         referencedTableName="users" referencedColumnNames="user_id"/>
+
+		<addForeignKeyConstraint constraintName="notifications_notification_voided_by_fk"
+		                         baseTableName="notifications_notification" baseColumnNames="voided_by"
+		                         referencedTableName="users" referencedColumnNames="user_id"/>
+
+		<createIndex tableName="notifications_notification" indexName="notifications_notification_patient_idx">
+			<column name="patient_id"/>
+		</createIndex>
+
+		<createIndex tableName="notifications_notification" indexName="notifications_notification_user_idx">
+			<column name="recipient_user_id"/>
+		</createIndex>
+
+		<createIndex tableName="notifications_notification" indexName="notifications_notification_status_idx">
+			<column name="status"/>
+		</createIndex>
+	</changeSet>
+
 </databaseChangeLog>

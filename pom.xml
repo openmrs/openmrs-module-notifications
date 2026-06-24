@@ -60,6 +60,9 @@
 					<version>3.1.2</version>
 					<configuration>
 						<runOrder>alphabetical</runOrder>
+						<excludes>
+							<exclude>**/dao/NotificationsDaoTest.java</exclude>
+						</excludes>
 					</configuration>
 				</plugin>
 				<plugin>

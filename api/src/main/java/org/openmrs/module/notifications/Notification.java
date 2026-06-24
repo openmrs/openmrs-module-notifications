@@ -27,85 +27,93 @@ import javax.persistence.Table;
 import java.util.Date;
 
 /**
- * Represents a notification raised by the system (e.g. when a lab result becomes available)
- * and routed to a recipient user about a given patient. Maps to the
- * {@code notifications_notification} database table.
- *
+ * Represents a notification raised by the system (e.g. when a lab result becomes available) and
+ * routed to a recipient user about a given patient. Maps to the {@code notifications_notification}
+ * database table.
+ * 
  * @see org.openmrs.module.notifications.api.NotificationsService
  */
 @Entity(name = "notifications.Notification")
 @Table(name = "notifications_notification")
 public class Notification extends BaseOpenmrsData {
-
+	
 	/**
 	 * The category of clinical event that triggered the notification.
 	 */
 	public enum Type {
-		LAB_RESULT, PRESCRIPTION, SAMPLE_REJECTED, GENERAL
+		LAB_RESULT,
+		PRESCRIPTION,
+		SAMPLE_REJECTED,
+		GENERAL
 	}
-
+	
 	/**
 	 * The urgency of the notification, derived by the rules engine.
 	 */
 	public enum Priority {
-		LOW, MEDIUM, HIGH
+		LOW,
+		MEDIUM,
+		HIGH
 	}
-
+	
 	/**
 	 * The lifecycle state of the notification.
 	 */
 	public enum Status {
-		UNREAD, READ, REVIEWED, ARCHIVED
+		UNREAD,
+		READ,
+		REVIEWED,
+		ARCHIVED
 	}
-
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "notification_id")
 	private Integer id;
-
+	
 	@ManyToOne
 	@JoinColumn(name = "patient_id")
 	private Patient patient;
-
+	
 	@ManyToOne
 	@JoinColumn(name = "recipient_user_id")
 	private User recipient;
-
+	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "type", length = 50, nullable = false)
 	private Type type = Type.GENERAL;
-
+	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "priority", length = 20, nullable = false)
 	private Priority priority = Priority.LOW;
-
+	
 	@Basic
 	@Column(name = "message", length = 2000, nullable = false)
 	private String message;
-
+	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", length = 20, nullable = false)
 	private Status status = Status.UNREAD;
-
+	
 	@Basic
 	@Column(name = "read_at")
 	private Date readAt;
-
+	
 	@ManyToOne
 	@JoinColumn(name = "reviewed_by")
 	private User reviewedBy;
-
+	
 	@Basic
 	@Column(name = "reviewed_at")
 	private Date reviewedAt;
-
+	
 	@Basic
 	@Column(name = "metadata", length = 4000)
 	private String metadata;
-
+	
 	public Notification() {
 	}
-
+	
 	public Notification(Patient patient, User recipient, Type type, Priority priority, String message) {
 		this.patient = patient;
 		this.recipient = recipient;
@@ -113,93 +121,93 @@ public class Notification extends BaseOpenmrsData {
 		this.priority = priority;
 		this.message = message;
 	}
-
+	
 	@Override
 	public Integer getId() {
 		return id;
 	}
-
+	
 	@Override
 	public void setId(Integer id) {
 		this.id = id;
 	}
-
+	
 	public Patient getPatient() {
 		return patient;
 	}
-
+	
 	public void setPatient(Patient patient) {
 		this.patient = patient;
 	}
-
+	
 	public User getRecipient() {
 		return recipient;
 	}
-
+	
 	public void setRecipient(User recipient) {
 		this.recipient = recipient;
 	}
-
+	
 	public Type getType() {
 		return type;
 	}
-
+	
 	public void setType(Type type) {
 		this.type = type;
 	}
-
+	
 	public Priority getPriority() {
 		return priority;
 	}
-
+	
 	public void setPriority(Priority priority) {
 		this.priority = priority;
 	}
-
+	
 	public String getMessage() {
 		return message;
 	}
-
+	
 	public void setMessage(String message) {
 		this.message = message;
 	}
-
+	
 	public Status getStatus() {
 		return status;
 	}
-
+	
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-
+	
 	public Date getReadAt() {
 		return readAt;
 	}
-
+	
 	public void setReadAt(Date readAt) {
 		this.readAt = readAt;
 	}
-
+	
 	public User getReviewedBy() {
 		return reviewedBy;
 	}
-
+	
 	public void setReviewedBy(User reviewedBy) {
 		this.reviewedBy = reviewedBy;
 	}
-
+	
 	public Date getReviewedAt() {
 		return reviewedAt;
 	}
-
+	
 	public void setReviewedAt(Date reviewedAt) {
 		this.reviewedAt = reviewedAt;
 	}
-
+	
 	public String getMetadata() {
 		return metadata;
 	}
-
+	
 	public void setMetadata(String metadata) {
 		this.metadata = metadata;
 	}

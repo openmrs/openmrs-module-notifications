@@ -25,16 +25,16 @@ import org.openmrs.module.notifications.api.listener.LabResultEventListener;
  * handling in a daemon thread, and it subscribes/unsubscribes that listener to Obs events.
  */
 public class NotificationsActivator extends BaseModuleActivator implements DaemonTokenAware {
-
+	
 	private Log log = LogFactory.getLog(this.getClass());
-
+	
 	private DaemonToken daemonToken;
-
+	
 	@Override
 	public void setDaemonToken(DaemonToken daemonToken) {
 		this.daemonToken = daemonToken;
 	}
-
+	
 	/**
 	 * @see #started()
 	 */
@@ -49,11 +49,10 @@ public class NotificationsActivator extends BaseModuleActivator implements Daemo
 		}
 		log.info("Started Notifications");
 	}
-
+	
 	/**
 	 * @see #shutdown()
 	 */
-	@Override
 	public void shutdown() {
 		LabResultEventListener listener = getListener();
 		if (listener != null) {
@@ -62,11 +61,10 @@ public class NotificationsActivator extends BaseModuleActivator implements Daemo
 		}
 		log.info("Shutdown Notifications");
 	}
-
+	
 	private LabResultEventListener getListener() {
 		try {
-			return Context.getRegisteredComponent("notifications.LabResultEventListener",
-			        LabResultEventListener.class);
+			return Context.getRegisteredComponent("notifications.LabResultEventListener", LabResultEventListener.class);
 		}
 		catch (Exception e) {
 			log.warn("LabResultEventListener component not available", e);

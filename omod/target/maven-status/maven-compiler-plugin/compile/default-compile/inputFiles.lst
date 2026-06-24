@@ -1,2 +1,3 @@
 /home/tendo/OPENMRS/openmrs-module-notifications/omod/src/main/java/org/openmrs/module/notifications/fragment/controller/UsersFragmentController.java
+/home/tendo/OPENMRS/openmrs-module-notifications/omod/src/main/java/org/openmrs/module/notifications/web/resource/NotificationResource.java
 /home/tendo/OPENMRS/openmrs-module-notifications/omod/src/main/java/org/openmrs/module/notifications/web/controller/NotificationsController.java

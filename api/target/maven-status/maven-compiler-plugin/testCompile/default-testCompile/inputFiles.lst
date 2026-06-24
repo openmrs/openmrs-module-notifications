@@ -1,2 +1,3 @@
 /home/tendo/OPENMRS/openmrs-module-notifications/api/src/test/java/org/openmrs/module/notifications/dao/NotificationsDaoTest.java
 /home/tendo/OPENMRS/openmrs-module-notifications/api/src/test/java/org/openmrs/module/notifications/NotificationsServiceTest.java
+/home/tendo/OPENMRS/openmrs-module-notifications/api/src/test/java/org/openmrs/module/notifications/api/rules/NotificationRuleEngineTest.java

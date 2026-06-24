@@ -17,10 +17,10 @@ import org.openmrs.module.notifications.Notification;
  * channels (e.g. SMS, email) can be layered on by extending this interface.
  */
 public interface DeliveryService {
-
+	
 	/**
 	 * Delivers a notification that has already been persisted.
-	 *
+	 * 
 	 * @param notification the notification to deliver
 	 */
 	void deliver(Notification notification);

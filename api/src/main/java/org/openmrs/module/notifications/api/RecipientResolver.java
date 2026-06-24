@@ -21,16 +21,16 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Resolves the set of {@link User}s who should receive a notification for a given clinical
- * event. The default strategy routes notifications to the clinician who placed the order.
+ * Resolves the set of {@link User}s who should receive a notification for a given clinical event.
+ * The default strategy routes notifications to the clinician who placed the order.
  */
 @Component("notifications.RecipientResolver")
 public class RecipientResolver {
-
+	
 	/**
 	 * Resolves recipients for a notification triggered by the given order. Falls back to an empty
 	 * set if no recipient can be determined.
-	 *
+	 * 
 	 * @param order the order that triggered the notification (may be null)
 	 * @return an ordered set of recipient users (never null)
 	 */
@@ -45,10 +45,10 @@ public class RecipientResolver {
 		}
 		return recipients;
 	}
-
+	
 	/**
 	 * Resolves recipients for a notification about a given patient when no order is available.
-	 *
+	 * 
 	 * @param patient the patient (may be null)
 	 * @return an ordered set of recipient users (never null)
 	 */
@@ -57,7 +57,7 @@ public class RecipientResolver {
 		// Implementations may override this to route to a care team or location-based role.
 		return Collections.emptySet();
 	}
-
+	
 	private User getUserForProvider(Provider provider) {
 		if (provider == null || provider.getPerson() == null) {
 			return null;

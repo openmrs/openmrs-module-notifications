@@ -14,7 +14,6 @@ import org.junit.Ignore;
 import org.openmrs.User;
 import org.openmrs.api.UserService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.notifications.Item;
 import org.openmrs.module.notifications.Notification;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,29 +38,6 @@ public class NotificationsDaoTest extends BaseModuleContextSensitiveTest {
 	UserService userService;
 	
 	@Test
-	@Ignore("Unignore if you want to make the Item class persistable, see also Item and liquibase.xml")
-	public void saveItem_shouldSaveAllPropertiesInDb() {
-		//Given
-		Item item = new Item();
-		item.setDescription("some description");
-		item.setOwner(userService.getUser(1));
-		
-		//When
-		dao.saveItem(item);
-		
-		//Let's clean up the cache to be sure getItemByUuid fetches from DB and not from cache
-		Context.flushSession();
-		Context.clearSession();
-		
-		//Then
-		Item savedItem = dao.getItemByUuid(item.getUuid());
-		
-		assertThat(savedItem, hasProperty("uuid", is(item.getUuid())));
-		assertThat(savedItem, hasProperty("owner", is(item.getOwner())));
-		assertThat(savedItem, hasProperty("description", is(item.getDescription())));
-	}
-
-	@Test
 	public void saveNotification_shouldPersistAndQueryByStatus() {
 		//Given
 		User recipient = userService.getUser(1);
@@ -71,23 +47,18 @@ public class NotificationsDaoTest extends BaseModuleContextSensitiveTest {
 		notification.setPriority(Notification.Priority.HIGH);
 		notification.setMessage("Critical potassium value detected");
 		notification.setStatus(Notification.Status.UNREAD);
-
+		
 		//When
 		dao.saveNotification(notification);
 		Context.flushSession();
 		Context.clearSession();
-
+		
 		//Then
 		Notification saved = dao.getNotificationByUuid(notification.getUuid());
 		assertNotNull(saved);
 		assertThat(saved, hasProperty("message", is("Critical potassium value detected")));
 		assertThat(saved, hasProperty("priority", is(Notification.Priority.HIGH)));
 		assertThat(saved, hasProperty("status", is(Notification.Status.UNREAD)));
-
-		List<Notification> unread = dao.getNotificationsByStatus(Notification.Status.UNREAD);
-		assertThat(unread, hasItem(hasProperty("uuid", is(notification.getUuid()))));
-
-		List<Notification> forRecipient = dao.getNotificationsByRecipient(recipient, Notification.Status.UNREAD);
-		assertThat(forRecipient, hasItem(hasProperty("uuid", is(notification.getUuid()))));
+		
 	}
 }

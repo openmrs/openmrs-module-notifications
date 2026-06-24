@@ -22,9 +22,9 @@ import org.springframework.stereotype.Component;
  */
 @Component("notifications.InAppDeliveryService")
 public class InAppDeliveryServiceImpl implements DeliveryService {
-
+	
 	private final Log log = LogFactory.getLog(this.getClass());
-
+	
 	@Override
 	public void deliver(Notification notification) {
 		if (notification == null) {

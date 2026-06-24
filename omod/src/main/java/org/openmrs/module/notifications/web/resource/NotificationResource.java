@@ -31,24 +31,24 @@ import java.util.List;
 
 /**
  * REST resource for {@link Notification}. Exposed at {@code /ws/rest/v1/notification}.
- *
- * <p>Supports:</p>
+ * <p>
+ * Supports:
+ * </p>
  * <ul>
- *   <li>{@code POST /ws/rest/v1/notification} — create a notification</li>
- *   <li>{@code GET  /ws/rest/v1/notification?status=UNREAD} — fetch by status</li>
- *   <li>{@code GET  /ws/rest/v1/notification?recipient=<uuid>} — fetch by recipient</li>
- *   <li>{@code POST /ws/rest/v1/notification/{uuid}} with {@code status} — mark read/reviewed/archived</li>
+ * <li>{@code POST /ws/rest/v1/notification} — create a notification</li>
+ * <li>{@code GET  /ws/rest/v1/notification?status=UNREAD} — fetch by status</li>
+ * <li>{@code GET  /ws/rest/v1/notification?recipient=<uuid>} — fetch by recipient</li>
+ * <li>{@code POST /ws/rest/v1/notification/ uuid} with {@code status} — mark read/reviewed/archived
+ * </li>
  * </ul>
  */
-@Resource(name = RestConstants.VERSION_1 + "/notification",
-        supportedClass = Notification.class,
-        supportedOpenmrsVersions = { "2.0 - 9.*" })
+@Resource(name = RestConstants.VERSION_1 + "/notification", supportedClass = Notification.class, supportedOpenmrsVersions = { "2.0 - 9.*" })
 public class NotificationResource extends DataDelegatingCrudResource<Notification> {
-
+	
 	private NotificationsService getService() {
 		return Context.getService(NotificationsService.class);
 	}
-
+	
 	@Override
 	public DelegatingResourceDescription getRepresentationDescription(Representation rep) {
 		DelegatingResourceDescription description = new DelegatingResourceDescription();
@@ -81,7 +81,7 @@ public class NotificationResource extends DataDelegatingCrudResource<Notificatio
 		}
 		return description;
 	}
-
+	
 	@Override
 	public DelegatingResourceDescription getCreatableProperties() {
 		DelegatingResourceDescription description = new DelegatingResourceDescription();
@@ -94,7 +94,7 @@ public class NotificationResource extends DataDelegatingCrudResource<Notificatio
 		description.addProperty("metadata");
 		return description;
 	}
-
+	
 	@Override
 	public DelegatingResourceDescription getUpdatableProperties() throws ResourceDoesNotSupportOperationException {
 		DelegatingResourceDescription description = new DelegatingResourceDescription();
@@ -104,7 +104,7 @@ public class NotificationResource extends DataDelegatingCrudResource<Notificatio
 		description.addProperty("metadata");
 		return description;
 	}
-
+	
 	/**
 	 * Allows clients to transition a notification's lifecycle by setting {@code status}. Setting
 	 * READ, REVIEWED, or ARCHIVED routes through the corresponding service action so audit fields
@@ -128,37 +128,36 @@ public class NotificationResource extends DataDelegatingCrudResource<Notificatio
 				notification.setStatus(status);
 		}
 	}
-
-	@Override
+	
 	public String getDisplayString(Notification notification) {
 		return notification.getMessage() + " [" + notification.getType() + "/" + notification.getPriority() + "]";
 	}
-
+	
 	@Override
 	public Notification newDelegate() {
 		return new Notification();
 	}
-
+	
 	@Override
 	public Notification save(Notification notification) {
 		return getService().createNotification(notification);
 	}
-
+	
 	@Override
 	public Notification getByUniqueId(String uuid) {
 		return getService().getNotificationByUuid(uuid);
 	}
-
+	
 	@Override
 	protected void delete(Notification notification, String reason, RequestContext context) throws ResponseException {
 		getService().voidNotification(notification, reason);
 	}
-
+	
 	@Override
 	public void purge(Notification notification, RequestContext context) throws ResponseException {
 		throw new ResourceDoesNotSupportOperationException("Purge is not supported for notifications.");
 	}
-
+	
 	/**
 	 * Supports filtering by {@code status} and/or {@code recipient} (user uuid).
 	 */
@@ -166,10 +165,9 @@ public class NotificationResource extends DataDelegatingCrudResource<Notificatio
 	protected PageableResult doSearch(RequestContext context) {
 		String statusParam = context.getParameter("status");
 		String recipientUuid = context.getParameter("recipient");
-
-		Notification.Status status = statusParam != null
-		        ? Notification.Status.valueOf(statusParam.toUpperCase()) : null;
-
+		
+		Notification.Status status = statusParam != null ? Notification.Status.valueOf(statusParam.toUpperCase()) : null;
+		
 		List<Notification> notifications;
 		if (recipientUuid != null) {
 			User recipient = Context.getUserService().getUserByUuid(recipientUuid);

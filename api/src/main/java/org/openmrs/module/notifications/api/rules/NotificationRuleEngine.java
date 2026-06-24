@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 /**
  * Determines the priority of a notification and whether it should be sent. This implements the
  * notification decision tree described in O3-5751:
- *
+ * 
  * <pre>
  *   Lab Result Received
  *     ├── Sample rejected?               → SEND (HIGH)
@@ -27,10 +27,10 @@ import org.springframework.stereotype.Component;
  */
 @Component("notifications.NotificationRuleEngine")
 public class NotificationRuleEngine {
-
+	
 	/**
 	 * Evaluates the given lab result context and returns a decision.
-	 *
+	 * 
 	 * @param context the inputs to evaluate; must not be null
 	 * @return the resulting {@link NotificationDecision}
 	 */
@@ -38,28 +38,28 @@ public class NotificationRuleEngine {
 		if (context == null) {
 			return NotificationDecision.silent();
 		}
-
+		
 		// A rejected sample always requires clinician attention.
 		if (context.isSampleRejected()) {
 			return NotificationDecision.send(Notification.Priority.HIGH);
 		}
-
+		
 		// STAT orders are urgent by definition.
 		if (context.getOrderPriority() == LabResultContext.OrderPriority.STAT) {
 			return NotificationDecision.send(Notification.Priority.HIGH);
 		}
-
+		
 		// Critical lab values are urgent regardless of order priority.
 		if (context.getLabValueClassification() == LabResultContext.LabValueClassification.CRITICAL) {
 			return NotificationDecision.send(Notification.Priority.HIGH);
 		}
-
+		
 		// Abnormal values beyond the configured threshold warrant a medium-priority alert.
 		if (context.getLabValueClassification() == LabResultContext.LabValueClassification.ABNORMAL
 		        && context.isAbnormalBeyondThreshold()) {
 			return NotificationDecision.send(Notification.Priority.MEDIUM);
 		}
-
+		
 		// Everything else is a silent chart update.
 		return NotificationDecision.silent();
 	}
